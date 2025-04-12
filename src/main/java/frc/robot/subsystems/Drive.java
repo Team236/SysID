@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static edu.wpi.first.units.MutableMeasure.mutable;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
@@ -15,6 +14,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.MutDistance;
+import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.measure.Velocity;
@@ -75,11 +77,11 @@ public class Drive extends SubsystemBase {
           DriveConstants.kRightEncoderReversed); //TODO - check if reversed
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
-  private final MutVoltage m_appliedVoltage = mutable(Volts.of(0));
+  private final MutVoltage m_appliedVoltage = new MutVoltage(0, 0, Volts);
   // Mutable holder for unit-safe linear distance values, persisted to avoid reallocation.
-  private final MutDistance m_distance = mutable(Meters.of(0));
+  private final MutDistance m_distance = new MutDistance(0, 0, Meters);
   // Mutable holder for unit-safe linear velocity values, persisted to avoid reallocation.
-  private final MutLinearVelocity m_velocity = mutable(MetersPerSecond.of(0));
+  private final MutLinearVelocity m_velocity = new MutLinearVelocity(0, 0, MetersPerSecond);
 
 //Create a method that gets distance from Postion - see format from other classes
  // DriveConstants.kEncoderDistancePerRevolution)*(m_leftMotor.getPosition())
@@ -106,11 +108,11 @@ public class Drive extends SubsystemBase {
                         m_appliedVoltage.mut_replace(
                             m_leftMotor.get() * RobotController.getBatteryVoltage(), Volts))
                   ///getPosition returns Rotations. Need to multiply by distance per revolutions to get distance (meters)
-                    .linearPosition(m_distance.mut_replace(m_leftMotor.getPosition().getValue()*DriveConstants.kEncoderDistancePerRevolution, Meters))
+                    .linearPosition(m_distance.mut_replace(m_leftMotor.getPosition().getValueAsDouble() * DriveConstants.kEncoderDistancePerRevolution, Meters))
                   //.linearPosition(m_distance.mut_replace(m_leftEncoder.getDistance(), Meters)) //distance since last reset, as scaled by setDistancePerPuls
                    
                   ///getVelocity returns rotations/sec. Need to multiply by distance per revolutions to get meters/sec
-                 .linearVelocity(m_velocity.mut_replace(m_leftMotor.getVelocity().getValue()*DriveConstants.kEncoderDistancePerRevolution, MetersPerSecond));
+                 .linearVelocity(m_velocity.mut_replace(m_leftMotor.getVelocity().getValueAsDouble() * DriveConstants.kEncoderDistancePerRevolution, MetersPerSecond));
                  // .linearVelocity(m_velocity.mut_replace(m_leftEncoder.getRate(), MetersPerSecond));  //distance per second, as scaled by the value of distance per pulse
                 
                  // Record a frame for the right motors.  Since these share an encoder, we consider
@@ -121,11 +123,11 @@ public class Drive extends SubsystemBase {
                             m_rightMotor.get() * RobotController.getBatteryVoltage(), Volts))
                   
                 ///getPosition returns Rotations. Need to multiply by distance per revolutions to get distance (meters)
-                  .linearPosition(m_distance.mut_replace(m_rightMotor.getPosition().getValue()*DriveConstants.kEncoderDistancePerRevolution, Meters))
+                  .linearPosition(m_distance.mut_replace(m_rightMotor.getPosition().getValueAsDouble()*DriveConstants.kEncoderDistancePerRevolution, Meters))
                 //.linearPosition(m_distance.mut_replace(m_rightEncoder.getDistance(), Meters))  
                     
                 ///getVelocity returns rotations/sec. Need to multiply by distance per revolutions to get meters/sec
-                  .linearVelocity(m_velocity.mut_replace(m_rightMotor.getVelocity().getValue()*DriveConstants.kEncoderDistancePerRevolution, MetersPerSecond));
+                  .linearVelocity(m_velocity.mut_replace(m_rightMotor.getVelocity().getValueAsDouble()*DriveConstants.kEncoderDistancePerRevolution, MetersPerSecond));
                 //.linearVelocity(m_velocity.mut_replace(m_rightEncoder.getRate(), MetersPerSecond));
               },
               // Tell SysId to make generated commands require this subsystem, suffix test state in
